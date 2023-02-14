@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.24/13a394eed5c4f9efb2a6d956e2086f1d81e857d9/lombok-1.18.24.jar" />
+        </processorPath>
+        <module name="com.rest-api-example.rest-api-example.test" />
+        <module name="com.rest-api-example.rest-api-example.main" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="rest-api-example.rest-api-example.main~1" target="11" />
+      <module name="rest-api-example.rest-api-example.test~1" target="11" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="rest-api-example.rest-api-example.main" options="--add-modules java.base" />
+      <module name="rest-api-example.rest-api-example.main~1" options="--add-modules java.base" />
+      <module name="rest-api-example.rest-api-example.test" options="--add-modules java.base" />
+      <module name="rest-api-example.rest-api-example.test~1" options="--add-modules java.base" />
+    </option>
+  </component>
+</project>
