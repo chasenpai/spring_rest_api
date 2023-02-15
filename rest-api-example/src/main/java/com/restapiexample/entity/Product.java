@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(callSuper = true)
-public class Product extends BaseTimeEntity{
+public class Product extends com.restapiexample.entity.BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

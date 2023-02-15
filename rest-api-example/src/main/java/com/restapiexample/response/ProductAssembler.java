@@ -17,8 +17,8 @@ public class ProductAssembler implements RepresentationModelAssembler<ProductDto
     public EntityModel<ProductDto> toModel(ProductDto entity) {
         return EntityModel.of(
                 entity,
-                linkTo(methodOn(ProductController.class).getProductOne(entity.getId())).withSelfRel(),
-                linkTo(methodOn(ProductController.class).getProductList()).withRel("list")
+                linkTo(methodOn(ProductController.class).getProductV3(entity.getId())).withSelfRel(),
+                linkTo(methodOn(ProductController.class).getAllProductsV3()).withRel("list")
         );
     }
 
@@ -26,4 +26,5 @@ public class ProductAssembler implements RepresentationModelAssembler<ProductDto
     public CollectionModel<EntityModel<ProductDto>> toCollectionModel(Iterable<? extends ProductDto> entities) {
         return RepresentationModelAssembler.super.toCollectionModel(entities);
     }
+
 }

@@ -1,7 +1,9 @@
 package com.restapiexample.dto;
 
 import com.restapiexample.entity.Product;
+import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.domain.Page;
 
 @Data
 public class ProductDto {
@@ -20,4 +22,11 @@ public class ProductDto {
         this.price = product.getPrice();
         this.stock = product.getStock();
     }
+
+    public static Page<ProductDto> entityToDto(Page<Product> entityPage){
+        return entityPage.map(
+                ProductDto::new
+        );
+    }
+
 }

@@ -7,6 +7,10 @@ import com.restapiexample.repository.ProductRepository;
 import com.restapiexample.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +24,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-
-    public ProductDto getProductOne(Long id){
+    public ProductDto getProduct(Long id){
 
         Optional<Product> product = productRepository.findById(id);
 
@@ -33,19 +36,15 @@ public class ProductService {
 
     }
 
-    public List<ProductDto> getProductList(){
-
-        List<ProductDto> list = productRepository.findAll()
+    public List<ProductDto> getAllProducts(){
+        return productRepository.findAll()
                 .stream()
                 .map(ProductDto::new)
                 .collect(Collectors.toList());
+    }
 
-        if(list.size() > 0){
-            return list;
-        }else{
-            throw new ProductNotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
-        }
-
+    public Page<ProductDto> getAllProductsPage(Pageable pageable){
+        return ProductDto.entityToDto(productRepository.findAll(pageable));
     }
 
 }

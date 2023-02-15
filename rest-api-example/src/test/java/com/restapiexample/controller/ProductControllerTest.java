@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,12 +28,13 @@ public class ProductControllerTest {
         long productId = 2L;
 
         mockMvc.perform(
-                    get("/api/example/v1/products")
-                    .contentType(MediaTypes.HAL_JSON_VALUE)
-                    .accept(MediaTypes.HAL_JSON_VALUE)
+                        get("/api/example/v1/products")
+                                .contentType(MediaTypes.HAL_JSON_VALUE)
+                                .accept(MediaTypes.HAL_JSON_VALUE)
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+        ;
 
         /**
          * perform - 요청을 전송하는 역할
