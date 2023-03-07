@@ -1,6 +1,7 @@
 package com.restapiexample.controller;
 
 import com.restapiexample.dto.ProductDto;
+import com.restapiexample.request.ProductRequest;
 import com.restapiexample.response.PagedModelUtil;
 import com.restapiexample.response.ProductAssembler;
 import com.restapiexample.response.ProductResource;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,13 +36,13 @@ public class ProductController {
      * - 단일 엔티티에 리소스 추가
      */
     @GetMapping("/v1/products/{id}")
-    public EntityModel<ProductDto> getProductV1(@PathVariable("id") Long id){
+    public EntityModel<ProductDto> getProduct(@PathVariable("id") Long id){
         Link link = Link.of("http://localhost8080/api/example/v1/products/" + id, "self"); //수동 링크 생성
         return EntityModel.of(
                 productService.getProduct(id),
                 //WebMvcLinkBuilder 를 사용한 링크 생성 단순화
-                linkTo(methodOn(ProductController.class).getProductV1(id)).withSelfRel(),
-                linkTo(methodOn(ProductController.class).getAllProductsV1()).withRel("list")
+                linkTo(methodOn(ProductController.class).getProduct(id)).withSelfRel(),
+                linkTo(methodOn(ProductController.class).getAllProducts()).withRel("list")
         );
     }
 
@@ -49,20 +51,52 @@ public class ProductController {
      * - 엔티티 컬렉션에 리소스 추가
      */
     @GetMapping("/v1/products")
-    public CollectionModel<EntityModel<ProductDto>> getAllProductsV1(){
+    public CollectionModel<EntityModel<ProductDto>> getAllProducts(){
         List<EntityModel<ProductDto>> response = productService.getAllProducts()
                 .stream()
                 .map(
                         list -> EntityModel.of(
                                 list,
-                                linkTo(methodOn(ProductController.class).getProductV1(list.getId())).withSelfRel(),
-                                linkTo(methodOn(ProductController.class).getAllProductsV1()).withRel("list")
+                                linkTo(methodOn(ProductController.class).getProduct(list.getId())).withSelfRel(),
+                                linkTo(methodOn(ProductController.class).getAllProducts()).withRel("list")
                         )
                 )
                 .collect(Collectors.toList());
         return CollectionModel.of(
                 response,
-                linkTo(methodOn(ProductController.class).getAllProductsV1()).withSelfRel()
+                linkTo(methodOn(ProductController.class).getAllProducts()).withSelfRel()
+        );
+    }
+
+    @PostMapping("/v1/products")
+    @ResponseStatus(HttpStatus.CREATED)
+    public EntityModel<ProductDto> saveProduct(@RequestBody ProductRequest request){
+        ProductDto productDto = productService.saveProduct(request);
+        return EntityModel.of(
+                productDto,
+                linkTo(methodOn(ProductController.class).getProduct(productDto.getId())).withSelfRel(),
+                linkTo(methodOn(ProductController.class).getAllProducts()).withRel("list"),
+                linkTo(methodOn(ProductController.class).deleteProduct(productDto.getId())).withRel("delete")
+        );
+    }
+
+    @PutMapping("/v1/products")
+    public EntityModel<ProductDto> updateProduct(@RequestBody ProductRequest request){
+        ProductDto productDto = productService.updateProduct(request);
+        return EntityModel.of(
+                productDto,
+                linkTo(methodOn(ProductController.class).getProduct(productDto.getId())).withSelfRel(),
+                linkTo(methodOn(ProductController.class).getAllProducts()).withRel("list"),
+                linkTo(methodOn(ProductController.class).deleteProduct(productDto.getId())).withRel("delete")
+        );
+    }
+
+    @DeleteMapping("/v1/products/{id}")
+    //@ResponseStatus(HttpStatus.NO_CONTENT)
+    public EntityModel deleteProduct(@PathVariable("id") Long id){
+        productService.deleteProduct(id);
+        return EntityModel.of(
+                linkTo(methodOn(ProductController.class).getAllProducts()).withRel("list")
         );
     }
 
@@ -82,14 +116,13 @@ public class ProductController {
     @GetMapping("/v2/products")
     public PagedModel<EntityModel<ProductDto>> getAllProductsV2(Pageable pageable){
         Page<ProductDto> page = productService.getAllProductsPage(pageable);
-        //PagedModel<EntityModel<ProductDto>> response = pageAssembler.toModel(page);
         return PagedModelUtil.getEntityModels(
                 pageAssembler,
                 page,
                 linkTo(methodOn(ProductController.class).getAllProductsV2(null)),
                 ProductDto::getId
         );
-        //return response;
+        //return pageAssembler.toModel(page);
     }
 
     /**

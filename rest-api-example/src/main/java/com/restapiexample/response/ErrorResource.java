@@ -12,7 +12,7 @@ public class ErrorResource extends EntityModel<ErrorResponse> {
 
     public ErrorResource(ErrorResponse content) {
         super(content);
-        add(linkTo(methodOn(ProductController.class).getAllProductsV1()).withRel("list"));
+        add(linkTo(methodOn(ProductController.class).getAllProducts()).withRel("list"));
     }
 
 }

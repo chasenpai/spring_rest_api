@@ -1,5 +1,6 @@
 package com.restapiexample.entity;
 
+import com.restapiexample.request.ProductRequest;
 import lombok.*;
 
 import javax.persistence.*;
@@ -23,5 +24,17 @@ public class Product extends com.restapiexample.entity.BaseTimeEntity {
 
     @Column(nullable = false)
     private Integer stock;
+
+    public Product(ProductRequest request) {
+        this.name = request.getName();
+        this.price = request.getPrice();
+        this.stock = request.getStock();
+    }
+
+    public void updateProduct(ProductRequest request){
+        this.name = request.getName();
+        this.price = request.getPrice();
+        this.stock = request.getStock();
+    }
 
 }
