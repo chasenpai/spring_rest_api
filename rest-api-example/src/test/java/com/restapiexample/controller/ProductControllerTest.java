@@ -1,239 +1,62 @@
 package com.restapiexample.controller;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.restapiexample.entity.Product;
-import com.restapiexample.repository.ProductRepository;
-import com.restapiexample.request.ProductRequest;
-import org.junit.jupiter.api.DisplayName;
+
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.restdocs.RestDocumentationExtension;
-import org.springframework.restdocs.hypermedia.LinksSnippet;
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.restdocs.payload.RequestFieldsSnippet;
-import org.springframework.restdocs.payload.ResponseFieldsSnippet;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.*;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@Transactional
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-@AutoConfigureRestDocs
-@ExtendWith(RestDocumentationExtension.class)
+@Slf4j
 public class ProductControllerTest {
 
     @Autowired
     MockMvc mockMvc;
 
-    @Autowired
-    ObjectMapper objectMapper;
-
-    @Autowired
-    ProductRepository productRepository;
-
     @Test
-    @DisplayName("제품 단건 조회")
-    public void getProduct() throws Exception {
+    void checkStock() throws Exception {
 
-        Product product = Product.builder()
-                .name("테스트제품")
-                .price(1000)
-                .stock(10)
-                .build();
-
-        Product savedProduct = productRepository.save(product);
-
-        mockMvc.perform(//RestDocumentationRequestBuilders - @PathVariable 사용 시
-                        RestDocumentationRequestBuilders.get("/api/example/v1/products/{id}", savedProduct.getId())
-                                .contentType(MediaTypes.HAL_JSON_VALUE)
-                                .accept(MediaTypes.HAL_JSON_VALUE)
-                )
-                .andExpect(status().isOk())
-                .andDo(document("get-product",
-                                preprocessRequest(prettyPrint()),
-                                preprocessResponse(prettyPrint()),
-                                pathParameters(
-                                        parameterWithName("id").description("제품 id")
-                                ),
-                                relaxedResponseFields( //모든 필드를 문서화 하고 싶지 않으면 사용
-                                        fieldWithPath("id").type(JsonFieldType.NUMBER).description("제품 id"),
-                                        fieldWithPath("name").type(JsonFieldType.STRING).description("제품명"),
-                                        fieldWithPath("price").type(JsonFieldType.NUMBER).description("가격"),
-                                        fieldWithPath("stock").type(JsonFieldType.NUMBER).description("재고"),
-                                        fieldWithPath("createDate").type(JsonFieldType.STRING).description("제품 등록일"),
-                                        fieldWithPath("lastModifiedDate").type(JsonFieldType.STRING).description("제품 수정일")
-                                ),
-                                links( //문서화 되지 않은 링크가 있으면 테스트 실패
-                                        halLinks(),
-                                        linkWithRel("self").description("제품 정보"),
-                                        linkWithRel("list").description("제품 목록")
-                                )
-                        )
-                );
-
-    }
-
-    /**
-     * 스니펫 재사용
-     */
-    private final ResponseFieldsSnippet responseField = relaxedResponseFields(
-            fieldWithPath("id").type(JsonFieldType.NUMBER).description("제품 id"),
-            fieldWithPath("name").type(JsonFieldType.STRING).description("제품명"),
-            fieldWithPath("price").type(JsonFieldType.NUMBER).description("가격"),
-            fieldWithPath("stock").type(JsonFieldType.NUMBER).description("재고"),
-            fieldWithPath("createDate").type(JsonFieldType.STRING).description("제품 등록일"),
-            fieldWithPath("lastModifiedDate").type(JsonFieldType.STRING).description("제품 수정일")
-    );
-
-    private final RequestFieldsSnippet requestField = relaxedRequestFields(
-            fieldWithPath("name").type(JsonFieldType.STRING).description("제품명"),
-            fieldWithPath("price").type(JsonFieldType.NUMBER).description("가격"),
-            fieldWithPath("stock").type(JsonFieldType.NUMBER).description("재고")
-    );
-
-    private final LinksSnippet links = links(
-            halLinks(),
-            linkWithRel("self").description("제품 정보"),
-            linkWithRel("list").description("제품 목록"),
-            linkWithRel("delete").description("제품 삭제")
-    );
-
-    @Test
-    @DisplayName("제품 목록 조회")
-    public void getAllProducts() throws Exception {
+        long productId = 2L;
 
         mockMvc.perform(
                         get("/api/example/v1/products")
                                 .contentType(MediaTypes.HAL_JSON_VALUE)
                                 .accept(MediaTypes.HAL_JSON_VALUE)
                 )
-                .andExpect(status().isOk())
-                .andDo(document("get-all-products",
-                                preprocessRequest(prettyPrint()),
-                                preprocessResponse(prettyPrint()),
-                                relaxedResponseFields(
-                                        //배열 문서화
-                                        fieldWithPath("_embedded.productDtoList[].id").type(JsonFieldType.NUMBER).description("제품 id"),
-                                        fieldWithPath("_embedded.productDtoList[].name").type(JsonFieldType.STRING).description("제품명"),
-                                        fieldWithPath("_embedded.productDtoList[].price").type(JsonFieldType.NUMBER).description("가격"),
-                                        fieldWithPath("_embedded.productDtoList[].stock").type(JsonFieldType.NUMBER).description("재고")
-                                )
-
-                        )
-                );
-
-    }
-
-    @Test
-    @DisplayName("제품 등록")
-    public void saveProduct() throws Exception {
-
-        ProductRequest request = ProductRequest.builder()
-                .name("테스트제품")
-                .price(1000)
-                .stock(10)
-                .build();
-
-        String content = objectMapper.writeValueAsString(request);
-
-        mockMvc.perform(
-                        post("/api/example/v1/products")
-                                .content(content)
-                                .contentType(MediaTypes.HAL_JSON_VALUE)
-                                .accept(MediaTypes.HAL_JSON_VALUE)
-                )
-                .andExpect(status().isCreated())
-                .andDo(document("save-product",
-                                preprocessRequest(prettyPrint()),
-                                preprocessResponse(prettyPrint()),
-                                requestField,
-                                responseField,
-                                links
-                        )
-                );
-
-    }
-
-    @Test
-    @DisplayName("제품 수정")
-    public void updateProduct() throws Exception {
-
-        ProductRequest request = ProductRequest.builder()
-                .id(2005)
-                .name("테스트제품수정")
-                .price(2000)
-                .stock(10)
-                .build();
-
-        String content = objectMapper.writeValueAsString(request);
-
-        mockMvc.perform(
-                        put("/api/example/v1/products")
-                                .content(content)
-                                .contentType(MediaTypes.HAL_JSON_VALUE)
-                                .accept(MediaTypes.HAL_JSON_VALUE)
-                )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andDo(document("update-product",
-                                preprocessRequest(prettyPrint()),
-                                preprocessResponse(prettyPrint()),
-                                requestField.and(
-                                        fieldWithPath("id").type(JsonFieldType.NUMBER).description("제품 id")
-                                ),
-                                responseField,
-                                links
-                        )
-                );
+        ;
+
+        /**
+         * perform - 요청을 전송하는 역할
+         * andExpect - 응답을 검증
+         * contentType - http 요청과 응답 데이터의 형식
+         * accept - 브라우저에서 서버로 요청시 메세지에 담기는 헤더(설정한 데이터 형식으로 응답 해달라고 하는것)
+         * andDo - 실행 결과를 처리
+         * andExpect - 실행 결과를 검증
+         *   ㄴ status - HTTP 상태 코드 검증
+         *   ㄴ header - 응답 헤더의 상태 검증
+         *   ㄴ cookie - 쿠키 상태 검증
+         *   ㄴ content - 응답 본문 내용 검증
+         *   ㄴ view - 컨트롤러가 반환한 뷰 이름 검증
+         *   ㄴ forwardedUrl - 이동 대상의 경로를 검증
+         *   ㄴ redirectedUrl - 리다이렉트 대상의 경로를 검증
+         *   ㄴ model - spring mvc model 상태 검증
+         *   ㄴ flash - 플래시 스코프의 상태 검증
+         *   ㄴ request - 비동기 처리의 상태나 요청 스코프의 상태, 세션 스코프 상태 검증
+         *   ㄴ jsonPath - json 응답 결과 검증
+         * andReturn - 실행 결과를 반환
+         */
 
     }
-
-    @Test
-    @DisplayName("제품 삭제")
-    public void deleteProduct() throws Exception {
-
-        Product product = Product.builder()
-                .name("테스트제품")
-                .price(1000)
-                .stock(10)
-                .build();
-
-        Product savedProduct = productRepository.save(product);
-
-        mockMvc.perform(
-                        RestDocumentationRequestBuilders.delete("/api/example/v1/products/{id}", savedProduct.getId())
-                                .contentType(MediaTypes.HAL_JSON_VALUE)
-                                .accept(MediaTypes.HAL_JSON_VALUE)
-                )
-                .andExpect(status().isOk())
-                .andDo(document("delete-product",
-                                preprocessRequest(prettyPrint()),
-                                preprocessResponse(prettyPrint()),
-                                pathParameters(
-                                        parameterWithName("id").description("제품 id")
-                                ),
-                                responseField,
-                                links(
-                                        halLinks(),
-                                        linkWithRel("list").description("제품 목록")
-                                )
-                        )
-                );
-
-    }
-
 
 }

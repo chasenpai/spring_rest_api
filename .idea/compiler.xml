@@ -12,11 +12,8 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="rest-api-example" target="11" />
-      <module name="rest-api-example.main" target="11" />
       <module name="rest-api-example.rest-api-example.main~1" target="11" />
       <module name="rest-api-example.rest-api-example.test~1" target="11" />
-      <module name="rest-api-example.test" target="11" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
