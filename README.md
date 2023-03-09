@@ -1,1 +1,1 @@
-# spring_rest_api_hateoas
+# spring_rest_api
