@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(callSuper = true)
-public class Product extends com.restapiexample.entity.BaseTimeEntity {
+public class Product extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,6 +35,13 @@ public class Product extends com.restapiexample.entity.BaseTimeEntity {
         this.name = request.getName();
         this.price = request.getPrice();
         this.stock = request.getStock();
+    }
+
+    @Builder
+    public Product(String name, Integer price, Integer stock) {
+        this.name = name;
+        this.price = price;
+        this.stock = stock;
     }
 
 }
