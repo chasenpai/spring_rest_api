@@ -93,9 +93,10 @@ public class ProductController {
 
     @DeleteMapping("/v1/products/{id}")
     //@ResponseStatus(HttpStatus.NO_CONTENT)
-    public EntityModel deleteProduct(@PathVariable("id") Long id){
-        productService.deleteProduct(id);
+    public EntityModel<ProductDto> deleteProduct(@PathVariable("id") Long id){
+        ProductDto productDto = productService.deleteProduct(id);
         return EntityModel.of(
+                productDto,
                 linkTo(methodOn(ProductController.class).getAllProducts()).withRel("list")
         );
     }

@@ -66,8 +66,15 @@ public class ProductService {
     }
 
     @Transactional
-    public void deleteProduct(Long id){
-        productRepository.deleteById(id);
+    public ProductDto deleteProduct(Long id){
+        Optional<Product> product = productRepository.findById(id);
+
+        if(product.isPresent()){
+            productRepository.deleteById(product.get().getId());
+            return new ProductDto(product.get());
+        }else{
+            throw new ProductNotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
     }
 
     public Page<ProductDto> getAllProductsPage(Pageable pageable){
